@@ -5,8 +5,37 @@
 #include <GL/glx.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <malloc.h>
+#include <sys/stat.h>
 
 #include "../game.h"
+
+void *LoadFile(const char *Filename, u64 *Size) {
+    void *Buffer = 0;
+    int File = open(Filename, O_RDONLY);
+    if(File != -1) {
+        struct stat FileStats;
+        fstat(File, &FileStats);
+        *Size = FileStats.st_size;
+        Buffer = malloc(FileStats.st_size);
+        read(File, Buffer, FileStats.st_size);
+        close(File);
+    }
+    return Buffer;
+}
+
+inline void FreeFile(void *Pointer) {
+    free(Pointer);
+}
+
+inline void *AllocateMemory(long Size) {
+    return malloc(Size);
+}
+inline void FreeMemory(void *Pointer) {
+    free(Pointer);
+}
 
 double GetSeconds() {
 	static struct timeval tv;
@@ -59,9 +88,8 @@ int main() {
     double TimePrevious;
     double TimeCurrent = GetSeconds();
 
-    GameMemory Memory = {0};
     GameButtons Input = {0};
-    GameInit(&Memory);
+    GameInit();
 
     while(running) {
         while(XEventsQueued(DefaultDisplay, QueuedAfterFlush)) {
@@ -140,7 +168,7 @@ int main() {
         }
         TimePrevious = TimeCurrent;
         TimeCurrent = GetSeconds();
-        GameTick(&Memory, &Input, TimeCurrent - TimePrevious);
+        GameTick(&Input, TimeCurrent - TimePrevious);
         glXSwapBuffers(DefaultDisplay, MainWindow);
     }
 }
