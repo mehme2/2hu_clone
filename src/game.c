@@ -1,7 +1,3 @@
-#include <GL/gl.h>
-#include <unistd.h>
-#include <stdio.h>
-
 #include "game.h"
 #include "numdef.h"
 
@@ -71,7 +67,6 @@ void GameInit() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Memory.test.Width, Memory.test.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Memory.test.Buffer);
-    glActiveTexture(Memory.texture);
 }
 
 void GameTick(GameButtons *Input, double Delta) {
