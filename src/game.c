@@ -11,14 +11,14 @@ u32 LoadShader(const char *Path, GLenum Type) {
     u64 Size;
     char *File = LoadFile(Path, &Size);
     if(File) {
-        int Success;
+        int LoadSuccess;
         char Info[512];
         ShaderID = glCreateShader(Type);
         glShaderSource(ShaderID, 1, (const char **)&File, 0);
         glCompileShader(ShaderID);
         FreeFile(File);
-        glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &Success);
-        if(!Success) {
+        glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &LoadSuccess);
+        if(!LoadSuccess) {
             glGetShaderInfoLog(ShaderID, sizeof(Info), 0, Info);
             printf("\nError while compiling \"%s\":\n\n%s\n", Path, Info);
         }

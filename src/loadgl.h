@@ -1,8 +1,13 @@
-#ifndef _LINKGL_H
-#define _LINKGL_H
+#ifndef _LOADGL_H
+#define _LOADGL_H
 
+#ifndef __linux__
 #include <windows.h>
-#include <gl/gl.h>
+#else
+#include <GL/glx.h>
+#endif
+
+#include <GL/gl.h>
 #include <GL/glext.h>
 
 extern PFNGLCREATESHADERPROC glCreateShader;
@@ -22,6 +27,6 @@ extern PFNGLUSEPROGRAMPROC glUseProgram;
 extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 extern PFNGLUNIFORM4FPROC glUniform4f;
 
-void LinkGL();
+void LoadGL();
 
 #endif

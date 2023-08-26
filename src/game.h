@@ -1,7 +1,7 @@
 #ifndef _GAME_H
 #define _GAME_H
 
-#include "gl.h"
+#include "loadgl.h"
 #include "numdef.h"
 #include "platform.h"
 

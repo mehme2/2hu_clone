@@ -1,8 +1,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysymdef.h>
-#include <GL/gl.h>
-#include <GL/glx.h>
 #include <stdio.h>
 #include <sys/time.h>
 #include <fcntl.h>
@@ -73,6 +71,7 @@ int main() {
 
     GLXContext GLXC = glXCreateContext(DefaultDisplay, VisualInfo, 0, GL_TRUE);
     glXMakeCurrent(DefaultDisplay, MainWindow, GLXC);
+    LoadGL();
 
 	printf("\nGL Vendor: %s\nGL Renderer: %s\nGL Version: %s\nGL Shading Language: %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION)); 
 
