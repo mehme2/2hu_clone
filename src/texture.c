@@ -12,7 +12,8 @@ Texture LoadBMP(const char *Filename) {
         Return.Width = Width < 0 ? -Width : Width;
         Return.Height = Height < 0 ? -Height : Height;
         Return.Buffer = AllocateMemory(sizeof(Color) * Return.Width * Return.Height);
-        Color *Current = Return.Buffer + Return.Width * (Return.Height - 1);
+        //Color *Current = Return.Buffer + Return.Width * (Return.Height - 1);
+        Color *Current = Return.Buffer;
         int Padding = 4 - (3 * Return.Width) % 4;
         for(int y = 0; y < Return.Height; y++) {
             for(int x = 0; x < Return.Width; x++) {
@@ -22,7 +23,7 @@ Texture LoadBMP(const char *Filename) {
                 Current++;
             }
             PixelArray += Padding;
-            Current -= Return.Width * 2;
+            //Current -= Return.Width * 2;
         }
         FreeFile(File);
     }

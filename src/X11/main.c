@@ -1,3 +1,4 @@
+#include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysymdef.h>
@@ -89,6 +90,7 @@ int main() {
 
     GameButtons Input = {0};
     GameInit();
+    XResizeWindow(DefaultDisplay, MainWindow, 1920, 720);
 
     while(running) {
         while(XEventsQueued(DefaultDisplay, QueuedAfterFlush)) {
@@ -162,7 +164,6 @@ int main() {
 						XWindowAttributes Attributes;
 						XGetWindowAttributes(DefaultDisplay, MainWindow, &Attributes);
 					}
-					break;
             }
         }
         TimePrevious = TimeCurrent;

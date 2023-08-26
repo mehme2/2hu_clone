@@ -1,4 +1,5 @@
 #include "loadgl.h"
+#include <GL/glext.h>
 
 #ifndef __linux__
 #define LOADFUNC(name) name = (void *)wglGetProcAddress(#name)
@@ -22,6 +23,8 @@ PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArray;
 PFNGLUSEPROGRAMPROC glUseProgram;
 PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 PFNGLUNIFORM4FPROC glUniform4f;
+PFNGLUNIFORM1IPROC glUniform1i;
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 
 void LoadGL() {
     LOADFUNC(glCreateShader);
@@ -40,4 +43,6 @@ void LoadGL() {
     LOADFUNC(glUseProgram);
     LOADFUNC(glGetUniformLocation);
     LOADFUNC(glUniform4f);
+    LOADFUNC(glUniform1i);
+    LOADFUNC(glUniformMatrix4fv);
 }

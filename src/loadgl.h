@@ -26,6 +26,8 @@ extern PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArray;
 extern PFNGLUSEPROGRAMPROC glUseProgram;
 extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 extern PFNGLUNIFORM4FPROC glUniform4f;
+extern PFNGLUNIFORM1IPROC glUniform1i;
+extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 
 void LoadGL();
 
