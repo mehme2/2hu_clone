@@ -1,4 +1,6 @@
 #include "../game.h"
+#include "linkgl.h"
+#include <stdio.h>
 
 GameButtons Input;
 
@@ -105,6 +107,13 @@ int WinMain(
     HDC DeviceContext = GetDC(HWnd);
     SetPixelFormat(DeviceContext, ChoosePixelFormat(DeviceContext, &PixelFormat), &PixelFormat);
     wglMakeCurrent(DeviceContext, wglCreateContext(DeviceContext));
+    //char GLVersion[512];
+	//sprintf(GLVersion, "\nGL Vendor: %s\nGL Renderer: %s\nGL Version: %s\nGL Shading Language: %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION)); 
+    //MessageBoxA(0, GLVersion, "GLINFO", MB_ICONEXCLAMATION);
+    //char ErrorMsg[512];
+    LinkGL();
+    //FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, ErrorMsg, 512, 0);
+    //MessageBoxA(0, ErrorMsg, "ERROR", MB_ICONEXCLAMATION);
     int ExitCode = -1;
     MSG Message;
     LARGE_INTEGER TimeCurrent;
