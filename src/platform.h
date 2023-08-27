@@ -1,9 +1,11 @@
 #ifndef _PLATFORM_H
 #define _PLATFORM_H
 
-extern void *LoadFile(const char *Filename, unsigned long *Size);
+#include "numdef.h"
+
+extern void *LoadFile(const char *Filename, u64 *Size);
 extern void FreeFile(void *Pointer);
-extern void *AllocateMemory(long Size);
+extern void *AllocateMemory(u64 Size);
 extern void FreeMemory(void *Pointer);
 extern void ResizeWindow(int width, int height);
 void SetWindowTitle(const char *Title);

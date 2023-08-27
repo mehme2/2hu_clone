@@ -1,6 +1,8 @@
 #ifndef _LOADGL_H
 #define _LOADGL_H
 
+#include <glad/glad.h>
+/*
 #ifndef __linux__
 #include <windows.h>
 #else
@@ -28,7 +30,9 @@ extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 extern PFNGLUNIFORM4FPROC glUniform4f;
 extern PFNGLUNIFORM1IPROC glUniform1i;
 extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+extern PFNGLACTIVETEXTUREPROC glActiveTexture;
 
 void LoadGL();
+*/
 
 #endif

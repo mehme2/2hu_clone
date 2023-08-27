@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 
 #include "../game.h"
+#include <GL/glx.h>
 
 void *LoadFile(const char *Filename, u64 *Size) {
     void *Buffer = 0;
@@ -17,10 +18,11 @@ void *LoadFile(const char *Filename, u64 *Size) {
     if(File != -1) {
         struct stat FileStats;
         fstat(File, &FileStats);
-        *Size = FileStats.st_size;
-        Buffer = malloc(FileStats.st_size);
+        *Size = FileStats.st_size + 1;
+        Buffer = malloc(FileStats.st_size + 1);
         read(File, Buffer, FileStats.st_size);
         close(File);
+        ((char *)Buffer)[FileStats.st_size] = 0;
     }
     return Buffer;
 }
@@ -29,7 +31,7 @@ inline void FreeFile(void *Pointer) {
     free(Pointer);
 }
 
-inline void *AllocateMemory(long Size) {
+inline void *AllocateMemory(u64 Size) {
     return malloc(Size);
 }
 inline void FreeMemory(void *Pointer) {
@@ -72,7 +74,8 @@ int main() {
 
     GLXContext GLXC = glXCreateContext(DefaultDisplay, VisualInfo, 0, GL_TRUE);
     glXMakeCurrent(DefaultDisplay, MainWindow, GLXC);
-    LoadGL();
+    //LoadGL();
+    gladLoadGL();
 
 	printf("\nGL Vendor: %s\nGL Renderer: %s\nGL Version: %s\nGL Shading Language: %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION)); 
 

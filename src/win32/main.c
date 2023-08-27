@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "../game.h"
 #include "../loadgl.h"
 #include <stdio.h>
@@ -23,7 +24,7 @@ inline void FreeFile(void *Pointer) {
     VirtualFree(Pointer, 0, MEM_RELEASE);
 }
 
-inline void *AllocateMemory(long Size) {
+inline void *AllocateMemory(u64 Size) {
     return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
 }
 
@@ -111,7 +112,8 @@ int WinMain(
 	//sprintf(GLVersion, "\nGL Vendor: %s\nGL Renderer: %s\nGL Version: %s\nGL Shading Language: %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION)); 
     //MessageBoxA(0, GLVersion, "GLINFO", MB_ICONEXCLAMATION);
     //char ErrorMsg[512];
-    LoadGL();
+    //LoadGL();
+    gladLoadGL();
     //FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, ErrorMsg, 512, 0);
     //MessageBoxA(0, ErrorMsg, "ERROR", MB_ICONEXCLAMATION);
     int ExitCode = -1;
