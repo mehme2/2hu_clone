@@ -1,11 +1,10 @@
-#include "game.h"
+#include <stdio.h>
 
+#include "game.h"
 #include "loadgl.h"
 #include "texture.h"
-#include <GL/gl.h>
-#include <stdio.h>
-#include <math.h>
 #include "meth.h"
+#include "entity.h"
 
 u32 LoadShader(const char *Path, GLenum Type) {
     u32 ShaderID = 0;
@@ -28,7 +27,7 @@ u32 LoadShader(const char *Path, GLenum Type) {
 }
 
 typedef struct {
-    float px, py;
+    Entity Entities[32];
     Texture Test;
     u32 TextureID;
     u32 VertexBufID;
@@ -36,7 +35,6 @@ typedef struct {
     u32 VertexShaderID;
     u32 FragShaderID;
     u32 ProgramID;
-    u32 VertexArrayID;
     float Timer;
 } GameMemory;
 
@@ -45,8 +43,6 @@ GameMemory Memory;
 void GameInit() {
     //glViewport(0, 0, 1920, 1080);
     glClearColor(0, 0, 0.2, 0);
-    Memory.px = 0;
-    Memory.py = 0;
     Memory.Test = LoadBMP("assets/test.bmp");
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &Memory.TextureID);
@@ -85,24 +81,41 @@ void GameInit() {
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glUseProgram(Memory.ProgramID);
+    Entity *Player = AddEntityToList(Memory.Entities, sizeof(Memory.Entities) / sizeof(Entity));
+    Player->ProgramID = Memory.ProgramID;
+    Player->VertexBufID = Memory.VertexBufID;
+    Player->IndexBufID = Memory.IndexBufID;
+    Player->TextureID = Memory.TextureID;
+    Player->Position = Vec2(0, 0);
+    Player->Velocity = Vec2(0, 0);
+    Player->Size = 1.0f;
+    InitRandom();
 }
 
 void GameTick(GameButtons *Input, double Delta) {
-    Matrix4 TransformMat;
-    Matrix4 Ortho;
-    Matrix4 Translate;
-    ScalingMatrix(9.0 / 160.0, 0.1, 0.1, &Ortho);
-    TranslationMatrix(Memory.px, -Memory.py, 0, &Translate);
-    MultiplyMatrix(&Ortho, &Translate, &TransformMat);
+    Matrix4 ViewMat;
+    ScalingMatrix(9.0 / 160.0, 0.1, 1.0, &ViewMat);
 
-    Memory.px += 5 * Delta * (Input->Right - Input->Left);
-    Memory.py += 5 * Delta * (Input->Down - Input->Up);
+    Memory.Entities[0].Position.x += 5 * Delta * (Input->Right - Input->Left);
+    Memory.Entities[0].Position.y -= 5 * Delta * (Input->Down - Input->Up);
 
     Memory.Timer += Delta;
+    if(Memory.Timer > 1.0f) {
+        Memory.Timer = 0;
+        Entity *New = AddEntityToList(Memory.Entities, sizeof(Memory.Entities) / sizeof(Entity));
+        if(New) {
+            New->ProgramID = Memory.ProgramID;
+            New->VertexBufID = Memory.VertexBufID;
+            New->IndexBufID = Memory.IndexBufID;
+            New->TextureID = Memory.TextureID;
+            New->Position = Vec2(RandomReal(-10, 10), RandomReal(-10, 10));
+            New->Velocity = Vec2(RandomReal(-1, 1), RandomReal(-1, 1));
+            New->Size = RandomReal(0.1, 5);
+        }
+    }
 
-    glUniform1i(glGetUniformLocation(Memory.ProgramID, "Texture"), 0);
-    glUniformMatrix4fv(glGetUniformLocation(Memory.ProgramID, "TransformMat"), 1, GL_FALSE, (float *)&TransformMat);
+    UpdateEntityList(Memory.Entities, sizeof(Memory.Entities) / sizeof(Entity), Delta);
 
     glClear(GL_COLOR_BUFFER_BIT);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    RenderEntityList(Memory.Entities, sizeof(Memory.Entities) / sizeof(Entity), ViewMat);
 }
