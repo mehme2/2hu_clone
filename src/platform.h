@@ -3,11 +3,11 @@
 
 #include "numdef.h"
 
-extern void *LoadFile(const char *Filename, u64 *Size);
-extern void FreeFile(void *Pointer);
-extern void *AllocateMemory(u64 Size);
-extern void FreeMemory(void *Pointer);
-extern void ResizeWindow(int width, int height);
-void SetWindowTitle(const char *Title);
+extern void *loadFile(const char *filename, u64 *size);
+extern void freeFile(void *pointer);
+extern void *allocMem(u64 size);
+extern void freeMem(void *pointer);
+extern void resizeWin(int width, int height);
+void setWinTitle(const char *title);
 
 #endif

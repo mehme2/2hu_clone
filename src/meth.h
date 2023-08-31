@@ -3,30 +3,32 @@
 
 #include "numdef.h"
 
-void InitRandom();
-float RandomReal(float min, float max);
-int RandomInt(int min, int max);
+void initRandom();
+float randomReal(float min, float max);
+int randomInt(int min, int max);
 
 typedef struct {
     float x, y;
-} Vec2;
+} vec2;
 
-#define Vec2(x, y) (Vec2){x, y}
+#define vec2(x, y) (vec2){x, y}
 
-extern Vec2 AddVec2(Vec2 lhs, Vec2 rhs);
-extern Vec2 SubVec2(Vec2 lhs, Vec2 rhs);
-extern Vec2 MulVec2(Vec2 lhs, Vec2 rhs);
-extern Vec2 DivVec2(Vec2 lhs, Vec2 rhs);
-extern Vec2 ScaleVec2(Vec2 v, float scalar);
-extern float DotVec2(Vec2 lhs, Vec2 rhs);
+extern vec2 addVec2(vec2 lhs, vec2 rhs);
+extern vec2 subVec2(vec2 lhs, vec2 rhs);
+extern vec2 mulVec2(vec2 lhs, vec2 rhs);
+extern vec2 divVec2(vec2 lhs, vec2 rhs);
+extern vec2 scaleVec2(vec2 v, float scalar);
+extern float dotVec2(vec2 lhs, vec2 rhs);
+extern float lenSqrVec2(vec2 v);
+extern float lenVec2(vec2 v);
 
 typedef struct {
-    float Cells[4][4];
-} Matrix4;
+    float cells[4][4];
+} mat4;
 
-void IdentityMatrix(Matrix4 *out);
-void TranslationMatrix(float x, float y, float z, Matrix4 *out);
-void ScalingMatrix(float x, float y, float z, Matrix4 *out);
-void MultiplyMatrix(Matrix4 *lhs, Matrix4 *rhs, Matrix4 *out);
+void identityMat(mat4 *out);
+void translationMat(float x, float y, float z, mat4 *out);
+void scalingMat(float x, float y, float z, mat4 *out);
+void mulMat(mat4 *lhs, mat4 *rhs, mat4 *out);
 
 #endif

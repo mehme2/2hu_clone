@@ -6,15 +6,15 @@
 typedef union {
     struct {
     u8 r, g, b, a;
-    } Channels;
-    u32 Value;
-} Color;
+    };
+    u32 rgba;
+} color;
 
 typedef struct {
-    u32 Width, Height;
-    Color *Buffer;
-} Texture;
+    u32 width, height;
+    color *buffer;
+} texture;
 
-Texture LoadBMP(const char *Filename);
+texture loadBMP(const char *path);
 
 #endif

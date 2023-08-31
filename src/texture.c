@@ -1,31 +1,31 @@
 #include "texture.h"
 #include "platform.h"
 
-Texture LoadBMP(const char *Filename) {
-    Texture Return = {0};
-    u64 FileSize;
-    void *File = LoadFile(Filename, &FileSize);
-    if(File) {
-        u8 *PixelArray = (u8 *)File + *(u32 *)((u8 *)File + 10);
-        int Width = *(int *)((u8 *)File + 18);
-        int Height = *(int *)((u8 *)File + 22);
-        Return.Width = Width < 0 ? -Width : Width;
-        Return.Height = Height < 0 ? -Height : Height;
-        Return.Buffer = AllocateMemory(sizeof(Color) * Return.Width * Return.Height);
+texture loadBMP(const char *path) {
+    texture ret = {0};
+    u64 size;
+    void *file = loadFile(path, &size);
+    if(file) {
+        u8 *pixArray = (u8 *)file + *(u32 *)((u8 *)file + 10);
+        int width = *(int *)((u8 *)file + 18);
+        int height = *(int *)((u8 *)file + 22);
+        ret.width = width < 0 ? -width : width;
+        ret.height = height < 0 ? -height : height;
+        ret.buffer = allocMem(sizeof(color) * ret.width * ret.height);
         //Color *Current = Return.Buffer + Return.Width * (Return.Height - 1);
-        Color *Current = Return.Buffer;
-        int Padding = 4 - (3 * Return.Width) % 4;
-        for(int y = 0; y < Return.Height; y++) {
-            for(int x = 0; x < Return.Width; x++) {
-                Current->Channels.b = *PixelArray++;
-                Current->Channels.g = *PixelArray++;
-                Current->Channels.r = *PixelArray++;
-                Current++;
+        color *cur = ret.buffer;
+        int padding = 4 - (3 * ret.width) % 4;
+        for(int y = 0; y < ret.height; y++) {
+            for(int x = 0; x < ret.width; x++) {
+                cur->b = *pixArray++;
+                cur->g = *pixArray++;
+                cur->r = *pixArray++;
+                cur++;
             }
-            PixelArray += Padding;
+            pixArray += padding;
             //Current -= Return.Width * 2;
         }
-        FreeFile(File);
+        freeFile(file);
     }
-    return Return;
+    return ret;
 }

@@ -1,51 +1,60 @@
 #include "meth.h"
 
+#include <math.h>
 #include <time.h>
 #include <stdlib.h>
 
-void InitRandom() {
+void initRandom() {
     srand(time(NULL));
 }
 
-float RandomReal(float min, float max) {
+float randomReal(float min, float max) {
     float r = (float)rand() / RAND_MAX;
     r *= max - min;
     r += min;
     return r;
 }
 
-int RandomInt(int min, int max) {
+int randomInt(int min, int max) {
     int r = rand() % (max - min + 1);
     r += min;
     return r;
 }
 
-inline Vec2 AddVec2(Vec2 lhs, Vec2 rhs) {
-    return Vec2(lhs.x + rhs.x, lhs.y + rhs.y);
+inline vec2 addVec2(vec2 lhs, vec2 rhs) {
+    return vec2(lhs.x + rhs.x, lhs.y + rhs.y);
 }
 
-inline Vec2 SubVec2(Vec2 lhs, Vec2 rhs) {
-    return Vec2(lhs.x - rhs.x, lhs.y - rhs.y);
+inline vec2 subVec2(vec2 lhs, vec2 rhs) {
+    return vec2(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
-inline Vec2 MulVec2(Vec2 lhs, Vec2 rhs) {
-    return Vec2(lhs.x * rhs.x, lhs.y * rhs.y);
+inline vec2 mulVec2(vec2 lhs, vec2 rhs) {
+    return vec2(lhs.x * rhs.x, lhs.y * rhs.y);
 }
 
-inline Vec2 DivVec2(Vec2 lhs, Vec2 rhs) {
-    return Vec2(lhs.x / rhs.x, lhs.y / rhs.y);
+inline vec2 divVec2(vec2 lhs, vec2 rhs) {
+    return vec2(lhs.x / rhs.x, lhs.y / rhs.y);
 }
 
-inline Vec2 ScaleVec2(Vec2 v, float scalar) {
-    return Vec2(v.x * scalar, v.y * scalar);
+inline vec2 scaleVec2(vec2 v, float scalar) {
+    return vec2(v.x * scalar, v.y * scalar);
 }
 
-inline float DotVec2(Vec2 lhs, Vec2 rhs) {
+inline float dotVec2(vec2 lhs, vec2 rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y;
 }
 
-void IdentityMatrix(Matrix4 *out) {
-    const static Matrix4 Identity = {
+inline float lenSqrVec2(vec2 v) {
+    return v.x * v.x + v.y * v.y;
+}
+
+inline float lenVec2(vec2 v) {
+    return sqrt(lenSqrVec2(v));
+}
+
+void identityMat(mat4 *out) {
+    const static mat4 identity = {
         {
             {1.0f, 0.0f, 0.0f, 0.0f},
             {0.0f, 1.0f, 0.0f, 0.0f},
@@ -53,29 +62,29 @@ void IdentityMatrix(Matrix4 *out) {
             {0.0f, 0.0f, 0.0f, 1.0f},
         }
     };
-    *out = Identity;
+    *out = identity;
 }
 
-void TranslationMatrix(float x, float y, float z, Matrix4 *out) {
-    IdentityMatrix(out);
-    out->Cells[3][0] = x;
-    out->Cells[3][1] = y;
-    out->Cells[3][2] = z;
+void translationMat(float x, float y, float z, mat4 *out) {
+    identityMat(out);
+    out->cells[3][0] = x;
+    out->cells[3][1] = y;
+    out->cells[3][2] = z;
 }
 
-void ScalingMatrix(float x, float y, float z, Matrix4 *out) {
-    IdentityMatrix(out);
-    out->Cells[0][0] = x;
-    out->Cells[1][1] = y;
-    out->Cells[2][2] = z;
+void scalingMat(float x, float y, float z, mat4 *out) {
+    identityMat(out);
+    out->cells[0][0] = x;
+    out->cells[1][1] = y;
+    out->cells[2][2] = z;
 }
 
-void MultiplyMatrix(Matrix4 *lhs, Matrix4 *rhs, Matrix4 *out) {
+void mulMat(mat4 *lhs, mat4 *rhs, mat4 *out) {
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
-            out->Cells[i][j] = 0;
+            out->cells[i][j] = 0;
             for(int k = 0; k < 4; k++) {
-                out->Cells[i][j] += lhs->Cells[k][j] * rhs->Cells[i][k];
+                out->cells[i][j] += lhs->cells[k][j] * rhs->cells[i][k];
             }
         }
     }

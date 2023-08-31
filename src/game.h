@@ -6,10 +6,10 @@
 #include "platform.h"
 
 typedef struct {
-    int Up, Down, Left, Right, A, B;
-} GameButtons;
+    int up, down, left, right, a, b;
+} gameButtons;
 
-void GameInit();
-void GameTick(GameButtons *Input, double Delta);
+void gameInit();
+void gameTick(gameButtons *Input, double Delta);
 
 #endif

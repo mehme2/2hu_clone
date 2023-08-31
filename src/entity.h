@@ -4,18 +4,18 @@
 #include "meth.h"
 
 typedef struct {
-    u8 Active;
-    Vec2 Position;
-    Vec2 Velocity;
-    float Size;
-    u32 TextureID;
-    u32 IndexBufID;
-    u32 VertexBufID;
-    u32 ProgramID;
-} Entity;
+    u8 active;
+    vec2 pos;
+    vec2 vel;
+    vec2 scale;
+    u32 texID;
+    u32 indexID;
+    u32 vertexID;
+    u32 progID;
+} entity;
 
-Entity *AddEntityToList(Entity *List, u32 Size);
-void UpdateEntityList(Entity *List, u32 Size, float Delta);
-void RenderEntityList(Entity *List, u32 Size, Matrix4 View);
+entity *addEntityToList(entity *list, u32 size);
+void updateEntityList(entity *list, u32 size, float delta);
+void renderEntityList(entity *list, u32 size, mat4 viewMAt);
 
 #endif
