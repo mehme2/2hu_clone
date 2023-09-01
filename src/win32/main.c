@@ -3,45 +3,45 @@
 #include "../loadgl.h"
 #include <stdio.h>
 
-GameButtons Input;
+gameButtons input;
 
-HWND HWnd;
+HWND window;
 
-void *LoadFile(const char *Filename, u64 *Size) {
-    void *Buffer = 0;
-    LARGE_INTEGER FileSize;
-    HANDLE File = CreateFileA(Filename, GENERIC_READ, 0, 0, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-    if(File != INVALID_HANDLE_VALUE) {
-        GetFileSizeEx(File, &FileSize);
-        Buffer = VirtualAlloc(0, FileSize.QuadPart, MEM_COMMIT, PAGE_READWRITE);
-        ReadFile(File, Buffer, FileSize.QuadPart, 0, 0);
-        CloseHandle(File);
+void *loadFile(const char *path, u64 *size) {
+    void *buf = 0;
+    LARGE_INTEGER fileSize;
+    HANDLE file = CreateFileA(path, GENERIC_READ, 0, 0, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    if(file != INVALID_HANDLE_VALUE) {
+        GetFileSizeEx(file, &fileSize);
+        buf = VirtualAlloc(0, fileSize.QuadPart, MEM_COMMIT, PAGE_READWRITE);
+        ReadFile(file, buf, fileSize.QuadPart, 0, 0);
+        CloseHandle(file);
     }
-    return Buffer;
+    return buf;
 }
 
-inline void FreeFile(void *Pointer) {
-    VirtualFree(Pointer, 0, MEM_RELEASE);
+inline void freeFile(void *ptr) {
+    VirtualFree(ptr, 0, MEM_RELEASE);
 }
 
-inline void *AllocateMemory(u64 Size) {
-    return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, Size);
+inline void *allocMem(u64 size) {
+    return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
 }
 
-inline void FreeMemory(void *Pointer) {
-    HeapFree(GetProcessHeap(), 0, Pointer);
+inline void freeMem(void *ptr) {
+    HeapFree(GetProcessHeap(), 0, ptr);
 }
 
-void SetWindowTitle(const char *Title) {
-    SetWindowTextA(HWnd, Title);
+void setWinTitle(const char *title) {
+    SetWindowTextA(window, title);
 }
 
 LRESULT WindowProcedure(
-        HWND HWnd,
-        UINT Message,
-        WPARAM WParam,
-        LPARAM LParam) {
-    switch(Message) {
+        HWND window,
+        UINT msg,
+        WPARAM wParam,
+        LPARAM lParam) {
+    switch(msg) {
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
@@ -49,65 +49,65 @@ LRESULT WindowProcedure(
 		case WM_KEYUP:
 		case WM_SYSKEYDOWN:
 		case WM_SYSKEYUP: {
-				int Prev = (LParam & (1 << 30)) != 0;
-				int Transition = (LParam & (1 << 31)) != 0;
-				if(!(Prev ^ Transition)) {
-					switch(WParam) {
+				int prev = (lParam & (1 << 30)) != 0;
+				int transition = (lParam & (1 << 31)) != 0;
+				if(!(prev ^ transition)) {
+					switch(wParam) {
 						case VK_UP:
-							Input.Up = !Transition;
+							input.up = !transition;
 							break;
 						case VK_DOWN:
-							Input.Down = !Transition;
+							input.down = !transition;
 							break;
 						case VK_LEFT:
-							Input.Left = !Transition;
+							input.left = !transition;
 							break;
 						case VK_RIGHT:
-							Input.Right = !Transition;
+							input.right = !transition;
 							break;
 						case 'Z':
-							Input.A = !Transition;
+							input.a = !transition;
 							break;
 						case 'X':
-							Input.B = !Transition;
+							input.b = !transition;
 							break;
 					}
 				}
 			}
             break;
     }
-    return DefWindowProcA(HWnd, Message, WParam, LParam);
+    return DefWindowProcA(window, msg, wParam, lParam);
 }
 
 int WinMain(
-        HINSTANCE HInstance,
+        HINSTANCE hInstance,
         HINSTANCE NoneOf,
         LPSTR ThisMatters,
         int LOL) {
-    const char *WindowName = "gam";
-    const char *WindowClassName = "GAM WINDOW";
-    WNDCLASSA WindowClass = {0};
-    WindowClass.style = CS_VREDRAW | CS_HREDRAW;
-    WindowClass.lpfnWndProc = WindowProcedure;
-    WindowClass.hInstance = HInstance;
-    WindowClass.lpszClassName = WindowClassName;
-    RegisterClassA(&WindowClass);
-    HWnd = CreateWindowA(WindowClassName, WindowName,
+    const char *winName = "gam";
+    const char *className = "GAM WINDOW";
+    WNDCLASSA winClass = {0};
+    winClass.style = CS_VREDRAW | CS_HREDRAW;
+    winClass.lpfnWndProc = WindowProcedure;
+    winClass.hInstance = hInstance;
+    winClass.lpszClassName = className;
+    RegisterClassA(&winClass);
+    window = CreateWindowA(className, winName,
             WS_SYSMENU | WS_MINIMIZEBOX,
             0, 0, 1920, 1080,
-            0, 0, HInstance, 0);
-    ShowWindow(HWnd, 1);
-	PIXELFORMATDESCRIPTOR PixelFormat = {0};
-	PixelFormat.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	PixelFormat.nVersion = 1;
-	PixelFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	PixelFormat.iPixelType = PFD_TYPE_RGBA;
-	PixelFormat.cColorBits = 32;
-	PixelFormat.cDepthBits = 32;
-	PixelFormat.iLayerType = PFD_MAIN_PLANE;
-    HDC DeviceContext = GetDC(HWnd);
-    SetPixelFormat(DeviceContext, ChoosePixelFormat(DeviceContext, &PixelFormat), &PixelFormat);
-    wglMakeCurrent(DeviceContext, wglCreateContext(DeviceContext));
+            0, 0, hInstance, 0);
+    ShowWindow(window, 1);
+	PIXELFORMATDESCRIPTOR pixFormat = {0};
+	pixFormat.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+	pixFormat.nVersion = 1;
+	pixFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	pixFormat.iPixelType = PFD_TYPE_RGBA;
+	pixFormat.cColorBits = 32;
+	pixFormat.cDepthBits = 32;
+	pixFormat.iLayerType = PFD_MAIN_PLANE;
+    HDC dc = GetDC(window);
+    SetPixelFormat(dc, ChoosePixelFormat(dc, &pixFormat), &pixFormat);
+    wglMakeCurrent(dc, wglCreateContext(dc));
     //char GLVersion[512];
 	//sprintf(GLVersion, "\nGL Vendor: %s\nGL Renderer: %s\nGL Version: %s\nGL Shading Language: %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION)); 
     //MessageBoxA(0, GLVersion, "GLINFO", MB_ICONEXCLAMATION);
@@ -116,25 +116,25 @@ int WinMain(
     gladLoadGL();
     //FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, ErrorMsg, 512, 0);
     //MessageBoxA(0, ErrorMsg, "ERROR", MB_ICONEXCLAMATION);
-    int ExitCode = -1;
-    MSG Message;
-    LARGE_INTEGER TimeCurrent;
-    GetSystemTimeAsFileTime((LPFILETIME)&TimeCurrent);
-    GameInit();
+    int exitCode = -1;
+    MSG msg;
+    LARGE_INTEGER timeCur;
+    GetSystemTimeAsFileTime((LPFILETIME)&timeCur);
+    gameInit();
     while(1) {
-        if(PeekMessageA(&Message, 0, 0, 0, PM_REMOVE)) {
-            TranslateMessage(&Message);
-            DispatchMessageA(&Message);
-			if(Message.message == WM_QUIT) {
-				ExitCode = Message.wParam;
+        if(PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+			if(msg.message == WM_QUIT) {
+				exitCode = msg.wParam;
 				break;
 			}
         }
-        LARGE_INTEGER TimePrevious = TimeCurrent;
-        GetSystemTimeAsFileTime((LPFILETIME)&TimeCurrent);
-        float delta = (double)(TimeCurrent.QuadPart - TimePrevious.QuadPart) * 0.0000001;
-        GameTick(&Input, delta);
-        SwapBuffers(DeviceContext);
+        LARGE_INTEGER timePrev = timeCur;
+        GetSystemTimeAsFileTime((LPFILETIME)&timeCur);
+        float delta = (double)(timeCur.QuadPart - timePrev.QuadPart) * 0.0000001;
+        gameTick(&input, delta);
+        SwapBuffers(dc);
     }
-    return ExitCode;
+    return exitCode;
 }
