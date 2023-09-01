@@ -7,6 +7,7 @@ entity *addEntityToList(entity *list, u32 size) {
     entity *slot = 0;
     for(u32 i = 0; i < size; i++) {
         if(!list[i].active) {
+            list[i] = (entity){0};
             list[i].active = 1;
             slot = list + i;
             break;
@@ -17,11 +18,27 @@ entity *addEntityToList(entity *list, u32 size) {
 
 void updateEntityList(entity *list, u32 size, float delta) {
     for(u32 i = 0; i < size; i++) {
-        if(list[i].active) {
-            list[i].pos = addVec2(list[i].pos, scaleVec2(list[i].vel, delta));
-            if(lenSqrVec2(list[i].pos) > 100) {
-                list[i].active = 0;
+        if(!list[i].active) {
+            continue;
+        }
+        if(list[i].collideMask) {
+            for(u32 j = 0; j < size; j++) {
+                if(!list[j].active || i == j || !(list[i].collideMask & list[j].mask) ||
+                        sqr(list[i].collideRad + list[j].collideRad) < lenSqrVec2(subVec2(list[i].pos, list[j].pos))) {
+                    continue;
+                }
+                if(list[i].collideEvent & CE_DEAL_DAMAGE) {
+                    list[j].hp -= list[i].damage;
+                }
+                if(list[i].collideEvent & CE_DEACTIVATE) {
+                    list[i].active = 0;
+                    break;
+                }
             }
+        }
+        list[i].pos = addVec2(list[i].pos, scaleVec2(list[i].vel, delta));
+        if(!list[i].hp || lenSqrVec2(list[i].pos) > 400) {
+            list[i].active = 0;
         }
     }
 }

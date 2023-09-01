@@ -3,6 +3,8 @@
 
 #include "numdef.h"
 
+#define sqr(x) ((x) * (x))
+
 void initRandom();
 float randomReal(float min, float max);
 int randomInt(int min, int max);

@@ -7,6 +7,9 @@
 #include "meth.h"
 #include "entity.h"
 
+#define EM_PLAYER 0x01
+#define EM_ENEMY 0x02
+
 u32 loadShader(const char *path, GLenum type) {
     u32 shaderID = 0;
     u64 size;
@@ -44,6 +47,7 @@ u32 loadGLTexture(const char *path) {
 typedef enum {
     TEXTURE_TEST,
     TEXTURE_PLAYER,
+    TEXTURE_PLAYER_BULLET,
     TEXTURE_COUNT
 } textureID;
 
@@ -56,15 +60,17 @@ typedef struct {
     u32 fragShaderID;
     u32 progID;
     float timer;
+    float shootTimer;
 } gameMemory;
 
 gameMemory memory;
 
 void gameInit() {
-    glClearColor(0, 0, 0.2, 0);
+    glClearColor(0, 0.1, 0.3, 0);
     const char *texturePaths[TEXTURE_COUNT] = {
         "assets/test.bmp",
-        "assets/player.bmp"
+        "assets/player.bmp",
+        "assets/player_bullet.bmp",
     };
     for(int i = 0; i < TEXTURE_COUNT; i++) {
         memory.texNames[i] = loadGLTexture(texturePaths[i]);
@@ -103,18 +109,22 @@ void gameInit() {
     player->texID = memory.texNames[TEXTURE_PLAYER];
     player->pos = vec2(0, 0);
     player->vel = vec2(0, 0);
-    player->scale = vec2(5, 5);
+    player->scale = vec2(1, 1);
+    player->mask = EM_PLAYER;
+    player->collideRad = 0.1;
+    player->hp = 1;
     initRandom();
 }
 
-void gameTick(gameButtons *Input, double Delta) {
+void gameTick(gameButtons *input, double delta) {
     mat4 viewMat;
     scalingMat(9.0 / 160.0, 0.1, 1.0, &viewMat);
 
-    memory.entitites[0].pos.x += 5 * Delta * (Input->right - Input->left);
-    memory.entitites[0].pos.y -= 5 * Delta * (Input->down - Input->up);
+    memory.entitites[0].pos.x += 5 * delta * (input->right - input->left);
+    memory.entitites[0].pos.y -= 5 * delta * (input->down - input->up);
 
-    memory.timer += Delta;
+    memory.timer += delta;
+    memory.shootTimer += delta;
     if(memory.timer > 1.0f) {
         memory.timer = 0;
         entity *new = addEntityToList(memory.entitites, sizeof(memory.entitites) / sizeof(entity));
@@ -125,11 +135,32 @@ void gameTick(gameButtons *Input, double Delta) {
             new->texID = memory.texNames[TEXTURE_TEST];
             new->pos = vec2(randomReal(-10, 10), randomReal(-10, 10));
             new->vel = vec2(randomReal(-1, 1), randomReal(-1, 1));
-            new->scale = vec2(randomReal(0.1, 5), randomReal(0.1, 5));
+            new->scale = vec2(1, 1);
+            new->mask = EM_ENEMY;
+            new->collideRad = 0.3;
+            new->hp = 5;
+        }
+    }
+    if(input->a && memory.shootTimer > 0.1f) {
+        memory.shootTimer = 0;
+        entity *new = addEntityToList(memory.entitites, sizeof(memory.entitites) / sizeof(entity));
+        if(new) {
+            new->progID = memory.progID;
+            new->vertexID = memory.vertexID;
+            new->indexID = memory.indexID;
+            new->texID = memory.texNames[TEXTURE_PLAYER_BULLET];
+            new->pos = addVec2(memory.entitites[0].pos, vec2(0, 1));
+            new->vel = vec2(0, 10);
+            new->scale = vec2(0.5, 0.5);
+            new->collideMask = EM_ENEMY;
+            new->collideRad = 0.3;
+            new->damage = 1;
+            new->hp = 1;
+            new->collideEvent = CE_DEACTIVATE | CE_DEAL_DAMAGE;
         }
     }
 
-    updateEntityList(memory.entitites, sizeof(memory.entitites) / sizeof(entity), Delta);
+    updateEntityList(memory.entitites, sizeof(memory.entitites) / sizeof(entity), delta);
 
     glClear(GL_COLOR_BUFFER_BIT);
     renderEntityList(memory.entitites, sizeof(memory.entitites) / sizeof(entity), viewMat);
