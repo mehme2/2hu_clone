@@ -14,7 +14,7 @@ texture loadBMP(const char *path) {
         ret.buffer = allocMem(sizeof(color) * ret.width * ret.height);
         //Color *Current = Return.Buffer + Return.Width * (Return.Height - 1);
         color *cur = ret.buffer;
-        int padding = 4 - (3 * ret.width) % 4;
+        int padding = (4 - ((3 * ret.width) % 4)) % 4;
         for(int y = 0; y < ret.height; y++) {
             for(int x = 0; x < ret.width; x++) {
                 cur->b = *pixArray++;

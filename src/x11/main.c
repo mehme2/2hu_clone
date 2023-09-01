@@ -104,7 +104,7 @@ int main() {
                     break;
                 case KeyPress:
 					XLookupString(&event.xkey, keyStr, sizeof(keyStr), &keySym, 0);
-					printf("\nPressed: %s - %d\n", keyStr, (int)keySym);
+					//printf("\nPressed: %s - %d\n", keyStr, (int)keySym);
 					switch(keySym) {
 						case XK_q:
 						case XK_Escape:
@@ -140,7 +140,7 @@ int main() {
 						}
 					}
 					XLookupString(&event.xkey, keyStr, sizeof(keyStr), &keySym, 0);
-					printf("\nRelease: %s - %d\n", keyStr, (int)keySym);
+					//printf("\nRelease: %s - %d\n", keyStr, (int)keySym);
 					switch(keySym) {
                         case XK_Up:
                             input.up = 0;

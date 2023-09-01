@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "loadgl.h"
+#include "platform.h"
 #include "texture.h"
 #include "meth.h"
 #include "entity.h"
@@ -26,10 +27,29 @@ u32 loadShader(const char *path, GLenum type) {
     return shaderID;
 }
 
+u32 loadGLTexture(const char *path) {
+    u32 texName;
+    texture tex = loadBMP(path);
+    glGenTextures(1, &texName);
+    glBindTexture(GL_TEXTURE_2D, texName);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.buffer);
+    freeMem(tex.buffer);
+    return texName;
+}
+
+typedef enum {
+    TEXTURE_TEST,
+    TEXTURE_PLAYER,
+    TEXTURE_COUNT
+} textureID;
+
 typedef struct {
-    entity Entities[32];
-    texture test;
-    u32 texID;
+    entity entitites[32];
+    u32 texNames[TEXTURE_COUNT];
     u32 vertexID;
     u32 indexID;
     u32 vertShaderID;
@@ -41,26 +61,21 @@ typedef struct {
 gameMemory memory;
 
 void gameInit() {
-    //glViewport(0, 0, 1920, 1080);
     glClearColor(0, 0, 0.2, 0);
-    memory.test = loadBMP("assets/test.bmp");
-    glEnable(GL_TEXTURE_2D);
-    glGenTextures(1, &memory.texID);
-    glBindTexture(GL_TEXTURE_2D, memory.texID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, memory.test.width, memory.test.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, memory.test.buffer);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, memory.texID);
-    const static float vertexData[] = {
+    const char *texturePaths[TEXTURE_COUNT] = {
+        "assets/test.bmp",
+        "assets/player.bmp"
+    };
+    for(int i = 0; i < TEXTURE_COUNT; i++) {
+        memory.texNames[i] = loadGLTexture(texturePaths[i]);
+    }
+    const float vertexData[] = {
         -0.5f, -0.5f, 0.0f, 0.0f,
          0.5f,  0.5f, 1.0f, 1.0f,
         -0.5f,  0.5f, 0.0f, 1.0f,
          0.5f, -0.5f, 1.0f, 0.0f,
     };
-    const static u32 indexData[] = {
+    const u32 indexData[] = {
         0, 1, 2,
         0, 3, 1,
     };
@@ -81,14 +96,14 @@ void gameInit() {
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glUseProgram(memory.progID);
-    entity *player = addEntityToList(memory.Entities, sizeof(memory.Entities) / sizeof(entity));
+    entity *player = addEntityToList(memory.entitites, sizeof(memory.entitites) / sizeof(entity));
     player->progID = memory.progID;
     player->vertexID = memory.vertexID;
     player->indexID = memory.indexID;
-    player->texID = memory.texID;
+    player->texID = memory.texNames[TEXTURE_PLAYER];
     player->pos = vec2(0, 0);
     player->vel = vec2(0, 0);
-    player->scale = vec2(1, 1);
+    player->scale = vec2(5, 5);
     initRandom();
 }
 
@@ -96,26 +111,26 @@ void gameTick(gameButtons *Input, double Delta) {
     mat4 viewMat;
     scalingMat(9.0 / 160.0, 0.1, 1.0, &viewMat);
 
-    memory.Entities[0].pos.x += 5 * Delta * (Input->right - Input->left);
-    memory.Entities[0].pos.y -= 5 * Delta * (Input->down - Input->up);
+    memory.entitites[0].pos.x += 5 * Delta * (Input->right - Input->left);
+    memory.entitites[0].pos.y -= 5 * Delta * (Input->down - Input->up);
 
     memory.timer += Delta;
     if(memory.timer > 1.0f) {
         memory.timer = 0;
-        entity *New = addEntityToList(memory.Entities, sizeof(memory.Entities) / sizeof(entity));
-        if(New) {
-            New->progID = memory.progID;
-            New->vertexID = memory.vertexID;
-            New->indexID = memory.indexID;
-            New->texID = memory.texID;
-            New->pos = vec2(randomReal(-10, 10), randomReal(-10, 10));
-            New->vel = vec2(randomReal(-1, 1), randomReal(-1, 1));
-            New->scale = vec2(randomReal(0.1, 5), randomReal(0.1, 5));
+        entity *new = addEntityToList(memory.entitites, sizeof(memory.entitites) / sizeof(entity));
+        if(new) {
+            new->progID = memory.progID;
+            new->vertexID = memory.vertexID;
+            new->indexID = memory.indexID;
+            new->texID = memory.texNames[TEXTURE_TEST];
+            new->pos = vec2(randomReal(-10, 10), randomReal(-10, 10));
+            new->vel = vec2(randomReal(-1, 1), randomReal(-1, 1));
+            new->scale = vec2(randomReal(0.1, 5), randomReal(0.1, 5));
         }
     }
 
-    updateEntityList(memory.Entities, sizeof(memory.Entities) / sizeof(entity), Delta);
+    updateEntityList(memory.entitites, sizeof(memory.entitites) / sizeof(entity), Delta);
 
     glClear(GL_COLOR_BUFFER_BIT);
-    renderEntityList(memory.Entities, sizeof(memory.Entities) / sizeof(entity), viewMat);
+    renderEntityList(memory.entitites, sizeof(memory.entitites) / sizeof(entity), viewMat);
 }

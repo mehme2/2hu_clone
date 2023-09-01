@@ -16,6 +16,6 @@ typedef struct {
 
 entity *addEntityToList(entity *list, u32 size);
 void updateEntityList(entity *list, u32 size, float delta);
-void renderEntityList(entity *list, u32 size, mat4 viewMAt);
+void renderEntityList(entity *list, u32 size, mat4 viewMat);
 
 #endif

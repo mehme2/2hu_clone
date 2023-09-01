@@ -10,6 +10,6 @@ typedef struct {
 } gameButtons;
 
 void gameInit();
-void gameTick(gameButtons *Input, double Delta);
+void gameTick(gameButtons *input, double Delta);
 
 #endif
