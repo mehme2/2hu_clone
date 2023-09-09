@@ -34,8 +34,12 @@ inline void freeFile(void *Pointer) {
 inline void *allocMem(u64 Size) {
     return malloc(Size);
 }
-inline void freeMem(void *Pointer) {
-    free(Pointer);
+inline void freeMem(void *ptr) {
+    free(ptr);
+}
+
+inline void *reAllocMem(void *ptr, u64 size) {
+    return realloc(ptr, size);
 }
 
 double getSeconds() {

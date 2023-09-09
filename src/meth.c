@@ -53,6 +53,14 @@ inline float lenVec2(vec2 v) {
     return sqrt(lenSqrVec2(v));
 }
 
+inline vec2 mulCompVec2(vec2 lhs, vec2 rhs) {
+    return vec2(lhs.x * rhs.x - lhs.y * rhs.y, lhs.x * rhs.y + lhs.y * rhs.x);
+}
+
+inline vec2 getDirVec2(float angle) {
+    return vec2(cosf(angle), sinf(angle));
+}
+
 void identityMat(mat4 *out) {
     const static mat4 identity = {
         {

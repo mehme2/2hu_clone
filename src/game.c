@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 
 #include "game.h"
@@ -32,7 +33,7 @@ u32 loadShader(const char *path, GLenum type) {
 
 u32 loadGLTexture(const char *path) {
     u32 texName;
-    texture tex = loadBMP(path);
+    texture tex = loadTextureFile(path);
     glGenTextures(1, &texName);
     glBindTexture(GL_TEXTURE_2D, texName);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -48,11 +49,13 @@ typedef enum {
     TEXTURE_TEST,
     TEXTURE_PLAYER,
     TEXTURE_PLAYER_BULLET,
-    TEXTURE_COUNT
+    TEXTURE_BOSS,
+    TEXTURE_ENEMY_BULLET,
+    TEXTURE_COUNT,
 } textureID;
 
 typedef struct {
-    entity entitites[32];
+    entity entitites[512];
     u32 texNames[TEXTURE_COUNT];
     u32 vertexID;
     u32 indexID;
@@ -61,6 +64,10 @@ typedef struct {
     u32 progID;
     float timer;
     float shootTimer;
+    float bossShootTimer;
+    vec2 angle;
+    vec2 angularSpeed;
+    vec2 angularAcc;
 } gameMemory;
 
 gameMemory memory;
@@ -68,18 +75,20 @@ gameMemory memory;
 void gameInit() {
     glClearColor(0, 0.1, 0.3, 0);
     const char *texturePaths[TEXTURE_COUNT] = {
-        "assets/test.bmp",
-        "assets/player.bmp",
-        "assets/player_bullet.bmp",
+        "assets/test.png",
+        "assets/player.png",
+        "assets/player_bullet.png",
+        "assets/boss.png",
+        "assets/enemy_bullet.png",
     };
     for(int i = 0; i < TEXTURE_COUNT; i++) {
         memory.texNames[i] = loadGLTexture(texturePaths[i]);
     }
     const float vertexData[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f,  0.5f, 1.0f, 1.0f,
-        -0.5f,  0.5f, 0.0f, 1.0f,
-         0.5f, -0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 1.0f,
+         0.5f,  0.5f, 1.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f, 0.0f,
+         0.5f, -0.5f, 1.0f, 1.0f,
     };
     const u32 indexData[] = {
         0, 1, 2,
@@ -112,8 +121,22 @@ void gameInit() {
     player->scale = vec2(1, 1);
     player->mask = EM_PLAYER;
     player->collideRad = 0.1;
-    player->hp = 1;
+    player->hp = 15;
+    entity *boss = addEntityToList(memory.entitites, sizeof(memory.entitites) / sizeof(entity));
+    boss->progID = memory.progID;
+    boss->vertexID = memory.vertexID;
+    boss->indexID = memory.indexID;
+    boss->texID = memory.texNames[TEXTURE_BOSS];
+    boss->pos = vec2(0, 7);
+    boss->vel = vec2(0, 0);
+    boss->scale = vec2(1, 1);
+    boss->mask = EM_ENEMY;
+    boss->collideRad = 0.3;
+    boss->hp = 1000;
     initRandom();
+    memory.angle = vec2(0.0f, 1.0f);
+    memory.angularSpeed = vec2(cos(45), sin(-45));
+    memory.angularAcc = getDirVec2(0.008f * 0.012f * PI_F);
 }
 
 void gameTick(gameButtons *input, double delta) {
@@ -125,9 +148,11 @@ void gameTick(gameButtons *input, double delta) {
 
     memory.timer += delta;
     memory.shootTimer += delta;
-    if(memory.timer > 1.0f) {
+    memory.bossShootTimer += delta;
+
+    if(0 && memory.timer > 1.0f) {
         memory.timer = 0;
-        entity *new = addEntityToList(memory.entitites, sizeof(memory.entitites) / sizeof(entity));
+        entity *new = addEntityToList(memory.entitites + 2, sizeof(memory.entitites) / sizeof(entity) - 2);
         if(new) {
             new->progID = memory.progID;
             new->vertexID = memory.vertexID;
@@ -135,7 +160,7 @@ void gameTick(gameButtons *input, double delta) {
             new->texID = memory.texNames[TEXTURE_TEST];
             new->pos = vec2(randomReal(-10, 10), randomReal(-10, 10));
             new->vel = vec2(randomReal(-1, 1), randomReal(-1, 1));
-            new->scale = vec2(1, 1);
+            new->scale = vec2(1.0, 1.0);
             new->mask = EM_ENEMY;
             new->collideRad = 0.3;
             new->hp = 5;
@@ -155,6 +180,28 @@ void gameTick(gameButtons *input, double delta) {
             new->collideMask = EM_ENEMY;
             new->collideRad = 0.3;
             new->damage = 1;
+            new->hp = 1;
+            new->collideEvent = CE_DEACTIVATE | CE_DEAL_DAMAGE;
+        }
+    }
+    if(memory.entitites[1].active && memory.bossShootTimer > 0.008f) {
+        memory.bossShootTimer -= 0.008f;
+        memory.angularSpeed = mulCompVec2(memory.angularSpeed, memory.angularAcc);
+        memory.angle = mulCompVec2(memory.angularSpeed, memory.angle);
+        memory.angle = scaleVec2(memory.angle, 1.0f / lenVec2(memory.angle));
+        entity *new = addEntityToList(memory.entitites + 2, sizeof(memory.entitites) / sizeof(entity) - 2);
+        if(new) {
+            new->progID = memory.progID;
+            new->vertexID = memory.vertexID;
+            new->indexID = memory.indexID;
+            new->texID = memory.texNames[TEXTURE_ENEMY_BULLET];
+            //new->pos = addVec2(memory.entitites[1].pos, scaleVec2(memory.angle, 1));
+            new->pos = memory.entitites[1].pos;
+            new->vel = scaleVec2(memory.angle, 7);
+            new->scale = vec2(0.3, 0.3);
+            new->collideMask = EM_PLAYER;
+            new->collideRad = 0.3;
+            new->damage = 5;
             new->hp = 1;
             new->collideEvent = CE_DEACTIVATE | CE_DEAL_DAMAGE;
         }

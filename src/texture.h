@@ -15,6 +15,6 @@ typedef struct {
     color *buffer;
 } texture;
 
-texture loadBMP(const char *path);
+texture loadTextureFile(const char *path);
 
 #endif
