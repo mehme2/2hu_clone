@@ -100,8 +100,8 @@ void gameInit() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, memory.indexID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexData), indexData, GL_STATIC_DRAW);
-    memory.vertShaderID = loadShader("../src/shaders/vertex.glsl", GL_VERTEX_SHADER);
-    memory.fragShaderID = loadShader("../src/shaders/fragment.glsl", GL_FRAGMENT_SHADER);
+    memory.vertShaderID = loadShader("../assets/shaders/vertex.glsl", GL_VERTEX_SHADER);
+    memory.fragShaderID = loadShader("../assets/shaders/fragment.glsl", GL_FRAGMENT_SHADER);
     memory.progID = glCreateProgram();
     glAttachShader(memory.progID, memory.vertShaderID);
     glAttachShader(memory.progID, memory.fragShaderID);
